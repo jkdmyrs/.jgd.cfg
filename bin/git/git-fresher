@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# git-fresher: reset the working directory to the last commit
+# git-fresher: reset the working directory to the last commit, fetch latest on main, and delete all othe branches
 
 git add --all
 git reset --hard
