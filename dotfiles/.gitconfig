@@ -1,0 +1,30 @@
+[init]
+  defaultBranch = main
+
+[user]
+	email = 319723@wegmans.com
+	name = Jack DeMeyers
+
+[alias]
+  ll = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+  l = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --first-parent
+  co = checkout
+  cn = checkout -b 
+  ci = commit
+  st = status
+  br = branch
+  bra = branch -a
+  f = fetch --prune
+  a = add --all
+  rh = reset --hard
+  D = br -D
+
+[diff]
+  tool = vimdiff
+  prompt = false
+
+[safe]
+    directory = *
+
+[core]
+  autocrlf = false

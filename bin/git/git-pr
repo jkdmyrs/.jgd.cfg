@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# git-pr: push the current branch to the remote and open the associated PR
+
+git p
+ssh_url=`echo $(git remote get-url origin)`
+cbranch=`echo $(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/') | tr -d '()'`
+https_url="${ssh_url/git@github.com:/https:\/\/github.com\/}"
+https_url="${https_url%.git}"
+https_url="${https_url}/pull/$cbranch"
+powershell.exe start $https_url

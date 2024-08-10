@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# git-get: try to use switch -t if the upstream exists, otherwise use checkout (we'll set upstream on push)
+
+git switch -t $1 2> /dev/null || git co $1

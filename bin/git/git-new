@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# git-new: create a new branch from the remote version of the specified branch, default to main
+
+newBranch=$1
+dbranch=${2:-main}
+git a
+git stash
+git fetch
+git co origin/$dbranch
+git cn $newBranch

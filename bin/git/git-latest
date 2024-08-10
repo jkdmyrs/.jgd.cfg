@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# git-latest: pull the latest changes from the specified branch, default to main
+
+dbranch=${1:-main}
+git a
+git stash
+git co $dbranch
+git f
+git pull origin $dbranch

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# git-fresh: reset the working directory to the last commit
+
+git add --all
+git reset --hard
+git clean -dfx

@@ -1,0 +1,10 @@
+name: dis
+root: <%= ENV['PROJECT_ROOT'] || '/mnt/c/projects/sap' %>
+
+windows:
+  - bash:
+      layout: main-vertical
+      panes:
+        - sshme && clear && greeting
+        - <%= ENV['PROJECT_ROOT'] ? "cd #{ENV['PROJECT_ROOT']} && wl" : "" %>
+        - <%= ENV['PROJECT_ROOT'] ? "cd #{ENV['PROJECT_ROOT']} && ws" : "" %>

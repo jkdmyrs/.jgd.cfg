@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# git-p: push the current branch to the remote
+
+cbranch=`echo $(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/') | tr -d '()'`
+git push --set-upstream origin $cbranch

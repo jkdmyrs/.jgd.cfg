@@ -1,0 +1,17 @@
+#!/bin/bash
+
+touch /home/jack/.hushlogin
+
+dos2unix //home/jack/.jgd.cfg/bin/git/*
+chmod +x /home/jack/.jgd.cfg/bin/git/*
+
+mkdir -p /home/jack/.config/tmuxinator
+mkdir -p /home/jack/bin
+mkdir -p /home/jack/bin/git
+
+ln -sf /home/jack/.jgd.cfg/dotfiles/.bashrc /home/jack/.bashrc
+ln -sf /home/jack/.jgd.cfg/dotfiles/.vimrc /home/jack/.vimrc
+ln -sf /home/jack/.jgd.cfg/dotfiles/.gitconfig /home/jack/.gitconfig
+ln -sf /home/jack/.jgd.cfg/tmuxinator/main.yml /home/jack/.config/tmuxinator/main.yml
+ln -sf /home/jack/.jgd.cfg/tmuxinator/dis.yml /home/jack/.config/tmuxinator/dis.yml
+ln -sf /home/jack/.jgd.cfg/bin/git/* /home/jack/bin/git

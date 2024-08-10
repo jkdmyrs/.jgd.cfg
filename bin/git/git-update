@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# git-update: pull the latest changes from the current branch and merge with main
+
+dbranch=${1:-main}
+git a
+git stash
+cbranch=`echo $(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/') | tr -d '()'`
+git f
+git pull origin $cbranch
+mbranch="origin/${dbranch}"
+git merge $mbranch

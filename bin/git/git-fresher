@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# git-fresher: reset the working directory to the last commit
+
+git add --all
+git reset --hard
+git clean -dfx
+git latest
+git branch | grep -v 'main' | xargs git D 2> /dev/null
