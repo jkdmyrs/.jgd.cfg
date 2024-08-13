@@ -10,6 +10,7 @@
   l = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --first-parent
   co = checkout
   cn = checkout -b 
+  stack = checkout -b
   ci = commit
   st = status
   br = branch
