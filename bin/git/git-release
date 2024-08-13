@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# git-release: open the compare URL between the most recent tag and the target branch
+
+tags=$(git tag -l '[0-9][0-9][0-9][0-9].[0-9][0-9].[0-9][0-9]*')
+if [ -z "$tags" ]; then
+  echo "No tags found."
+  exit 1
+fi
+sorted_tags=$(echo "$tags" | sort -r)
+most_recent_tag=$(echo "$sorted_tags" | head -n 1)
+ssh_url=$(git config --get remote.origin.url)
+https_url="${ssh_url/git@github.com:/https:\/\/github.com\/}"
+https_url="${https_url%.git}"
+target_branch=${1:-main}
+compare_url="${https_url}/compare/${most_recent_tag}...${target_branch}"
+powershell.exe -Command "Start-Process '$compare_url'"
