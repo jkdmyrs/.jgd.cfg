@@ -2,6 +2,7 @@
 
 # git-release: open the compare URL between the most recent tag and the target branch
 
+git f
 tags=$(git tag -l '[0-9][0-9][0-9][0-9].[0-9][0-9].[0-9][0-9]*')
 if [ -z "$tags" ]; then
   echo "No tags found."
