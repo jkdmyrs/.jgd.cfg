@@ -3,4 +3,4 @@
 # git-update: pull the latest changes from the current branch and merge with main
 
 git update
-git p
+git pr
