@@ -6,4 +6,4 @@ git add --all
 git reset --hard
 git clean -dfx
 git latest
-git branch | grep -v 'main' | xargs git D 2> /dev/null
+git branch | grep -v '^main$' | xargs -r git branch -D 2> /dev/null
