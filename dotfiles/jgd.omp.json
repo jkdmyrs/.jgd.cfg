@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
   "version": 3,
-  "final_space": true,
+  "final_space": false,
   "palette": {
     "green": "#8bd5ca",
     "blue": "#8aadf4",
@@ -57,7 +57,7 @@
         {
           "type": "text",
           "style": "plain",
-          "template": "\n"
+          "template": "\n  "
         },
         {
           "type": "git",
@@ -75,7 +75,7 @@
             "duration": "2s",
             "strategy": "folder"
           },
-          "template": " {{ .HEAD }}{{ if gt .Ahead 0 }} ↑{{ .Ahead }}{{ end }}{{ if gt .Behind 0 }} ↓{{ .Behind }}{{ end }}{{ if or .Working.Changed .Staging.Changed }} <p:dirty_bg>*</>{{ end }} "
+          "template": " {{ .HEAD }}{{ if gt .Ahead 0 }} ↑{{ .Ahead }}{{ end }}{{ if gt .Behind 0 }} ↓{{ .Behind }}{{ end }}{{ if or .Working.Changed .Staging.Changed }} *{{ end }} "
         },
         {
           "type": "text",
