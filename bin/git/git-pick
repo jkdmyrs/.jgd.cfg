@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# git-pick: create a cherry-pick branch and open the PR
+
+cbranch=`echo $(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/') | tr -d '()'`
+git stack pick$1
+git cherry-pick $1
+git up $cbranch

@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Optional arg: blob URL
+blob_url="${1:-}"
+
+# Output JSON
+cat <<EOF
+{
+    "topic": "/subscriptions/{subscription-id}/resourceGroups/Storage/providers/Microsoft.Storage/storageAccounts/my-storage-account",
+    "subject": "/blobServices/default/containers/test-container/blobs/new-file.txt",
+    "eventType": "Microsoft.Storage.BlobCreated",
+    "eventTime": "$(date -u +"%Y-%m-%dT%H:%M:%S.%NZ")",
+    "id": "$(uuidgen)",
+    "data": {
+        "api": "PutBlockList",
+        "clientRequestId": "",
+        "requestId": "$(uuidgen)",
+        "eTag": "\"0x8D4BCC2E4835CD0\"",
+        "contentType": "text/plain",
+        "contentLength": 524288,
+        "blobType": "BlockBlob",
+        "url": "$blob_url",
+        "sequencer": "00000000000004420000000000028963",
+        "storageDiagnostics": {
+            "batchId": "$(uuidgen)"
+        }
+    },
+    "dataVersion": "",
+    "metadataVersion": "1"
+}
+EOF
