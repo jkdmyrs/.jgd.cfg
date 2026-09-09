@@ -28,7 +28,9 @@
           "background": "p:path_bg",
           "powerline_symbol": "",
           "properties": {
-            "style": "full"
+            "style": "agnoster_short",
+            "max_depth": 2,
+            "folder_icon": "..."
           },
           "template": " {{ .Path }} "
         },
