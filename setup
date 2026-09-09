@@ -1,18 +1,24 @@
 #!/bin/bash
+set -euo pipefail
 
-touch /home/jack/.hushlogin
+# Define source and target directories
+SRC_BIN="$HOME/.jgd.cfg/bin"
+SRC_GIT_BIN="$SRC_BIN/git"
+TARGET_BIN="$HOME/bin"
+TARGET_GIT_BIN="$TARGET_BIN/git"
 
-dos2unix //home/jack/.jgd.cfg/bin/git/*
-chmod +x /home/jack/.jgd.cfg/bin/git/*
+# Ensure target directories exist
+mkdir -p "$TARGET_BIN"
+mkdir -p "$TARGET_GIT_BIN"
 
-mkdir -p /home/jack/.config/tmuxinator
-mkdir -p /home/jack/bin
-mkdir -p /home/jack/bin/git
+# Convert all scripts to Unix format
+echo "Converting scripts to Unix format..."
+find "$SRC_BIN" -type f -exec dos2unix {} \;
 
-ln -sf /home/jack/.jgd.cfg/dotfiles/.bashrc /home/jack/.bashrc
-ln -sf /home/jack/.jgd.cfg/dotfiles/.vimrc /home/jack/.vimrc
-ln -sf /home/jack/.jgd.cfg/dotfiles/.gitconfig /home/jack/.gitconfig
-ln -sf /home/jack/.jgd.cfg/dotfiles/.tmux.conf /home/jack/.tmux.conf
-ln -sf /home/jack/.jgd.cfg/tmuxinator/main.yml /home/jack/.config/tmuxinator/main.yml
-ln -sf /home/jack/.jgd.cfg/tmuxinator/dis.yml /home/jack/.config/tmuxinator/dis.yml
-ln -sf /home/jack/.jgd.cfg/bin/git/* /home/jack/bin/git
+# Symlink top-level bin scripts to ~/bin
+echo "Linking top-level bin scripts to $TARGET_BIN"
+ln -sf "$SRC_BIN"/* "$TARGET_BIN/"
+
+# Symlink git subcommands to ~/bin/git
+echo "Linking git scripts to $TARGET_GIT_BIN"
+ln -sf "$SRC_GIT_BIN"/* "$TARGET_GIT_BIN/"

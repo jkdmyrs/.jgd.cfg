@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# git-p: push the current branch to the remote
+# git-pick: create a cherry-pick branch and open the PR
 
 cbranch=`echo $(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/') | tr -d '()'`
-git push --set-upstream origin $cbranch
+git stack pick$1
+git cherry-pick $1
+git up $cbranch

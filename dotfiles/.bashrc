@@ -57,6 +57,8 @@ fi
 export PATH="$HOME/bin/git:$PATH"
 export DENO_INSTALL="/home/jack/.deno"
 export PATH="$DENO_INSTALL/bin:$PATH"
+# temp - .net 10
+export PATH="$HOME/dotnet:$PATH"
 
 ###################
 # DEFAULT ALIASES #
@@ -66,8 +68,11 @@ alias vs='psrun ./*.sln'
 alias code='code .'
 alias brc='source ~/.bashrc'
 alias explore='explorer.exe .' 
-alias psrun='powershell.exe'
 alias bin='cd $HOME/bin'
+alias psrun='powershell.exe'
+alias copilot_env='psrun D:/wegmans/sap/sap-disintegrator/tools/Set-McpToken.ps1'
+alias copilot_gh='copilot.exe'
+alias copilot='copilot_env && copilot_gh'
 
 #############################
 # DEFAULT DIRECTORY ALIASES #
@@ -96,6 +101,8 @@ adminDir="${sapDir}/sap-integration-management"
 elDir="${wegDir}/enterprise-library"
 docsDir="${wegDir}/docs.wegmans.tech"
 cloudDir="${wegDir}/cloud-events"
+costDir="${sapDir}/Cost"
+bricksDir="${sapDir}/fps-databricks"
 
 ################
 # WORK ALIASES #
@@ -104,12 +111,14 @@ alias el='cd "${elDir}"'
 alias weg='cd "${wegDir}"'
 alias cloud='cd "${cloudDir}"'
 alias docs='cd "${docsDir}"'
+alias cost='cd "${costDir}"'
 
 # SAP Integration
 alias sap='cd "${sapDir}"'
 alias dis='export PROJECT_ROOT=$disDir; cd $PROJECT_ROOT'
 alias loc='export PROJECT_ROOT=$locDir; cd $PROJECT_ROOT'
 alias admin='export PROJECT_ROOT=$adminDir; cd $PROJECT_ROOT'
+alias bricks='export PROJECT_ROOT=$bricksDir; cd $PROJECT_ROOT'
 
 ##########
 # EDITOR #
@@ -184,11 +193,107 @@ alias sshmekeygen='ssh-keygen -t rsa -b 4096 -C "319723@wegmans.com"'
 ##########
 # PROMPT #
 ##########
-parse_git_branch() {
-     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+_set_git_prompt_line() {
+  # Quick git dir check - exit early if not in git repo
+  local git_dir
+  git_dir=$(git rev-parse --git-dir 2>/dev/null) || {
+    GIT_BRANCH=""
+    GIT_MSG=""
+    GIT_AUTHOR=""
+    GIT_AHEAD_BEHIND=""
+    GIT_STAGED_FILES=""
+    return
+  }
+
+  # Get basic info with single git call for efficiency
+  local git_info
+  git_info=$(git log -1 --pretty="%H %h %an %s" 2>/dev/null)
+  local full_commit="${git_info%% *}"
+  local commit="${git_info#* }"; commit="${commit%% *}"
+  local author="${git_info#* * }"; author="${author%% *}"
+  local message="${git_info#* * * }"
+  
+  local branch
+  branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+
+  # Single git status call for all file state info
+  local git_status
+  git_status=$(git status --porcelain 2>/dev/null)
+  
+  # Parse status efficiently
+  local has_unstaged="" has_staged="" has_untracked="" staged_lines=""
+  while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    local x="${line:0:1}"
+    local y="${line:1:1}"
+    
+    # Check staged (index) changes
+    if [[ "$x" =~ [ADMRC] ]]; then
+      has_staged=1
+      local filename="${line:3}"
+      case "$x" in
+        "A") staged_lines+="        new file:   $filename"$'\n' ;;
+        "M") staged_lines+="        modified:   $filename"$'\n' ;;
+        "D") staged_lines+="        deleted:    $filename"$'\n' ;;
+        "R") staged_lines+="        renamed:    $filename"$'\n' ;;
+        "C") staged_lines+="        copied:     $filename"$'\n' ;;
+      esac
+    fi
+    
+    # Check unstaged (working tree) changes
+    if [[ "$y" =~ [MD] ]] || [[ "$x$y" == "??" ]]; then
+      if [[ "$x$y" == "??" ]]; then
+        has_untracked=1
+      else
+        has_unstaged=1
+      fi
+    fi
+  done <<< "$git_status"
+
+  # Set status indicator
+  local status_colored=""
+  local show_staged_files=""
+  if [[ -n "$has_unstaged" || -n "$has_untracked" ]]; then
+    status_colored=$'\e[31m*\e[0m'  # Red * for unstaged/untracked
+  elif [[ -n "$has_staged" ]]; then
+    status_colored=$'\e[32m+\e[0m'  # Green + for staged only
+    show_staged_files=1  # Only show staged files when clean except for staged
+  fi
+
+  # Ahead/behind counts (only if we have upstream)
+  local ahead_behind=""
+  if git rev-parse --verify @{u} >/dev/null 2>&1; then
+    local counts
+    counts=$(git rev-list --count --left-right @{u}...HEAD 2>/dev/null)
+    local behind="${counts%	*}"
+    local ahead="${counts#*	}"
+    if [[ "$ahead" -gt 0 || "$behind" -gt 0 ]]; then
+      ahead_behind=$'     ↑'"${ahead}"'  ↓'"${behind}"
+    fi
+  fi
+
+  # Set global variables
+  GIT_BRANCH="(${branch}@${commit}${status_colored})"
+  GIT_MSG="${message}"
+  GIT_AUTHOR="<${author}>"
+  GIT_AHEAD_BEHIND="${ahead_behind}"
+  # Only show staged files if we have the green + (no unstaged/untracked changes)
+  if [[ -n "$show_staged_files" ]]; then
+    GIT_STAGED_FILES="${staged_lines:+$'\n\e[32m'}${staged_lines%$'\n'}${staged_lines:+$'\e[0m'}"
+  else
+    GIT_STAGED_FILES=""
+  fi
 }
-export PS1="\u@\[\033[32m\]\w\[\033[33m\]\$(parse_git_branch)\[\033[00m\] $ "
-export PROMPT_DIRTRIM=1
+
+PROMPT_COMMAND=_set_git_prompt_line
+export PROMPT_DIRTRIM=2
+
+# Line 1: user@path
+# Line 2: branch@sha/status (yellow), commit msg (white), author (blue)
+# Line 3 (optional): ahead/behind (purple) if present
+# Line 4 (optional): staged files (green) if present
+# Final line: $
+export PS1='\u@\[\e[32m\]\w\[\e[0m\]\n     \[\e[33m\]${GIT_BRANCH}\[\e[37m\] ${GIT_MSG} \[\e[34m\]${GIT_AUTHOR}\[\e[0m\]${GIT_AHEAD_BEHIND:+\n\[\e[35m\]${GIT_AHEAD_BEHIND}\[\e[0m\]}${GIT_STAGED_FILES}\n\$ '
 
 ###########
 # STARTUP #

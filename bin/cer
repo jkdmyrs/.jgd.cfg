@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Optional args
+event_type="${1:-}"
+queue_name="${2:-}"
+file_path="${3:-}"
+
+# Initialize SourceUris
+source_uris=""
+
+# If file provided and not empty
+if [[ -n "$file_path" && -s "$file_path" ]]; then
+    # Split by comma, trim, and format each as quoted JSON string
+    source_uris=$(tr -d '\r' < "$file_path" | \
+        tr ',' '\n' | \
+        sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | \
+        grep -v '^$' | \
+        sed 's/^/        "/;s/$/"/' | \
+        sed '$!s/$/,/')
+fi
+
+# Output JSON
+cat <<EOF
+{
+    "EventType": "$event_type",
+    "QueueName": "$queue_name",
+    "SourceUris": [
+$(if [[ -n "$source_uris" ]]; then echo "$source_uris"; fi)
+    ],
+    "MessageExtensions": {
+        "dismessagereplay": "true"
+    }
+}
+EOF
