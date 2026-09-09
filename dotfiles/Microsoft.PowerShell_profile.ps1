@@ -73,4 +73,24 @@ $ohMyPoshTheme = Join-Path $env:JGD_ROOT 'dotfiles\jgd.omp.json'
 if ((Get-Command oh-my-posh -ErrorAction SilentlyContinue) -and (Test-Path $ohMyPoshTheme)) {
     $ohMyPoshShell = if ($PSVersionTable.PSEdition -eq 'Core') { 'pwsh' } else { 'powershell' }
     oh-my-posh init $ohMyPoshShell --config $ohMyPoshTheme | Invoke-Expression
+
+    # oh-my-posh's git segment only exposes aggregate change counts, not per-file
+    # status lines, so splice real `git status` output between the branch and
+    # prompt-marker lines by keeping a live reference to its prompt function.
+    $global:__ompPrompt = $Function:prompt
+    function prompt {
+        $line = & $global:__ompPrompt
+        if ($line.Contains(' * ')) {
+            $status = & git -c color.status=always status --short 2>$null
+            if ($LASTEXITCODE -eq 0 -and $status) {
+                $statusBlock = ($status | ForEach-Object { "  $_" }) -join "`n"
+                $marker = "`n`$ "
+                $idx = $line.LastIndexOf($marker)
+                if ($idx -ge 0) {
+                    $line = $line.Substring(0, $idx) + "`n" + $statusBlock + $marker
+                }
+            }
+        }
+        $line
+    }
 }
