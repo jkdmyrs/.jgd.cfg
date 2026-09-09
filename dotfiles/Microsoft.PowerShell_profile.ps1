@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 
-$jgdRoot = if ($env:JGD_ROOT) { $env:JGD_ROOT } else { Join-Path $HOME '.jgd.cfg' }
+$jgdRoot = if ($env:JGD_ROOT) { $env:JGD_ROOT } else { 'D:\.jgd.cfg' }
 $env:JGD_ROOT = $jgdRoot
 $env:Path = "$(Join-Path $jgdRoot 'bin\git-windows');$env:Path"
 $env:DENO_INSTALL = if ($env:DENO_INSTALL) { $env:DENO_INSTALL } else { Join-Path $HOME '.deno' }

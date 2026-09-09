@@ -81,7 +81,7 @@ alias prj='cd "${prjDir}"'
 alias usr='cd "${usrDir}"'
 alias dsk='cd  "${usrDir}/Desktop"'
 alias dwn='cd  "${usrDir}/Downloads"'
-alias jgd='cd ~/.jgd.cfg'
+alias jgd='cd /mnt/d/.jgd.cfg'
 
 ####################
 # DEFAULT env vars #

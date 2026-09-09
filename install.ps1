@@ -1,13 +1,13 @@
 [CmdletBinding()]
 param([switch] $Force)
 $ErrorActionPreference = 'Stop'
-$repoRoot = (Get-Item -LiteralPath $PSScriptRoot).ProviderPath
+$repoRoot = (Get-Item -LiteralPath $PSScriptRoot).FullName
 $profileSource = Join-Path $repoRoot 'dotfiles\Microsoft.PowerShell_profile.ps1'
 $profileTargets = @(
     $PROFILE,
     (Join-Path $HOME 'Documents\PowerShell\Microsoft.PowerShell_profile.ps1'),
     (Join-Path $HOME 'Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1')
-) | Sort-Object -Unique
+) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Sort-Object -Unique
 $gitBin = Join-Path $repoRoot 'bin\git-windows'
 
 if (Get-Command winget -ErrorAction SilentlyContinue) {
@@ -31,7 +31,7 @@ foreach ($profileTarget in $profileTargets) {
     if ($profileText -notmatch [regex]::Escape($marker)) {
         Add-Content -LiteralPath $profileTarget -Value "`n$marker`n$profileHook`n"
     } elseif ($Force) {
-        $profileText = [regex]::Replace($profileText, '(?ms)^# jgd.cfg PowerShell profile\r?\n.*?\r?\n(?=\r?\n|$)', "$marker`n$profileHook`n")
+        $profileText = [regex]::Replace($profileText, '(?m)^# jgd\.cfg PowerShell profile\r?\n[^\r\n]*(?:\r?\n|$)', "$marker`n$profileHook`n")
         Set-Content -LiteralPath $profileTarget -Value $profileText -NoNewline
     }
 }

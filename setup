@@ -1,11 +1,13 @@
 #!/bin/bash
-set -euo pipefail
+#set -euo pipefail
 
 # Define source and target directories
-SRC_BIN="$HOME/.jgd.cfg/bin"
+SRC_BIN="/mnt/d/.jgd.cfg/bin"
 SRC_GIT_BIN="$SRC_BIN/git"
+SRC_BASHRC="/mnt/d/.jgd.cfg/dotfiles/.bashrc"
 TARGET_BIN="$HOME/bin"
 TARGET_GIT_BIN="$TARGET_BIN/git"
+TARGET_BASHRC="$HOME/.bashrc"
 
 # Ensure target directories exist
 mkdir -p "$TARGET_BIN"
@@ -14,6 +16,17 @@ mkdir -p "$TARGET_GIT_BIN"
 # Convert all scripts to Unix format
 echo "Converting scripts to Unix format..."
 find "$SRC_BIN" -type f -exec dos2unix {} \;
+dos2unix "$SRC_BASHRC"
+
+# Link the Bash profile, preserving an existing user-owned file
+if [ -e "$TARGET_BASHRC" ] && [ ! -L "$TARGET_BASHRC" ]; then
+	backup="$TARGET_BASHRC.jgd-backup-$(date +%Y%m%d%H%M%S)"
+	while [ -e "$backup" ]; do backup="${backup}0"; done
+	echo "Backing up existing $TARGET_BASHRC to $backup"
+	mv "$TARGET_BASHRC" "$backup"
+fi
+echo "Linking Bash profile to $TARGET_BASHRC"
+ln -sfn "$SRC_BASHRC" "$TARGET_BASHRC"
 
 # Symlink top-level bin scripts to ~/bin
 echo "Linking top-level bin scripts to $TARGET_BIN"
