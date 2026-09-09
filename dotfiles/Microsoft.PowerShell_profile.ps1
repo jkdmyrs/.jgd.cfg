@@ -9,17 +9,17 @@ if (Test-Path (Join-Path $HOME 'dotnet')) { $env:Path = "$(Join-Path $HOME 'dotn
 $env:EDITOR = 'vim'
 
 $env:USR_DIR = if ($env:USR_DIR) { $env:USR_DIR } else { Join-Path $HOME '' }
-$env:PRJ_DIR = if ($env:PRJ_DIR) { $env:PRJ_DIR } else { 'D:\' }
-$env:WEG_DIR = if ($env:WEG_DIR) { $env:WEG_DIR } else { 'D:\wegmans' }
-$env:SAP_DIR = if ($env:SAP_DIR) { $env:SAP_DIR } else { Join-Path $env:WEG_DIR 'sap' }
-$env:DIS_DIR = if ($env:DIS_DIR) { $env:DIS_DIR } else { Join-Path $env:SAP_DIR 'sap-disintegrator' }
-$env:LOC_DIR = if ($env:LOC_DIR) { $env:LOC_DIR } else { Join-Path $env:SAP_DIR 'locations-hub' }
-$env:ADMIN_DIR = if ($env:ADMIN_DIR) { $env:ADMIN_DIR } else { Join-Path $env:SAP_DIR 'sap-integration-management' }
-$env:EL_DIR = if ($env:EL_DIR) { $env:EL_DIR } else { Join-Path $env:WEG_DIR 'enterprise-library' }
-$env:DOCS_DIR = if ($env:DOCS_DIR) { $env:DOCS_DIR } else { Join-Path $env:WEG_DIR 'docs.wegmans.tech' }
-$env:CLOUD_DIR = if ($env:CLOUD_DIR) { $env:CLOUD_DIR } else { Join-Path $env:WEG_DIR 'cloud-events' }
-$env:COST_DIR = if ($env:COST_DIR) { $env:COST_DIR } else { Join-Path $env:SAP_DIR 'Cost' }
-$env:BRICKS_DIR = if ($env:BRICKS_DIR) { $env:BRICKS_DIR } else { Join-Path $env:SAP_DIR 'fps-databricks' }
+$env:PRJ_DIR = 'D:\'
+$env:WEG_DIR = 'D:\wegmans'
+$env:SAP_DIR = Join-Path $env:WEG_DIR 'sap'
+$env:DIS_DIR = Join-Path $env:SAP_DIR 'sap-disintegrator'
+$env:LOC_DIR = Join-Path $env:SAP_DIR 'locations-hub'
+$env:ADMIN_DIR = Join-Path $env:SAP_DIR 'sap-integration-management'
+$env:EL_DIR = Join-Path $env:WEG_DIR 'enterprise-library'
+$env:DOCS_DIR = Join-Path $env:WEG_DIR 'docs.wegmans.tech'
+$env:CLOUD_DIR = Join-Path $env:WEG_DIR 'cloud-events'
+$env:COST_DIR = Join-Path $env:SAP_DIR 'cost-service'
+$env:BRICKS_DIR = Join-Path $env:SAP_DIR 'fps-databricks'
 
 function Set-LocationIfExists([string] $Path) {
     if (-not (Test-Path -LiteralPath $Path)) { Write-Warning "Path does not exist: $Path"; return }
@@ -29,9 +29,7 @@ function ll { Get-ChildItem -Force | Format-Table -AutoSize }
 function brc { . $PROFILE }
 function code { $codeCommand = Get-Command code -CommandType Application -ErrorAction Stop; & $codeCommand.Source . @args }
 function vs { & psrun (Get-ChildItem -Filter '*.sln' | Select-Object -First 1).FullName @args }
-function psrun { & powershell.exe @args }
 function explore { Start-Process explorer.exe (Get-Location) }
-function bin { Set-LocationIfExists (Join-Path $HOME 'bin') }
 function jgd { Set-LocationIfExists $env:JGD_ROOT }
 function prj { Set-LocationIfExists $env:PRJ_DIR }
 function usr { Set-LocationIfExists $env:USR_DIR }
@@ -52,14 +50,6 @@ function token([ValidateSet('dis', 'disProd')] [string] $Name) {
     $resources = @{ dis = 'c8304276-f3c4-40eb-acfb-d2330f4578a9'; disProd = 'b40ad62d-c014-4401-80aa-cab6adabb233' }
     & az account get-access-token --resource $resources[$Name] --tenant '1318d57f-757b-45b3-b1b0-9b3c3842774f'
 }
-function sshme {
-    $agent = Get-Process ssh-agent -ErrorAction SilentlyContinue
-    if (-not $agent) { Start-Service ssh-agent }
-    $key = Get-ChildItem (Join-Path $HOME '.ssh') -Filter '*_rsa' | Select-Object -First 1
-    if (-not $key) { throw 'No *_rsa key found in ~/.ssh' }
-    & ssh-add $key.FullName
-}
-function sshmekeygen { & ssh-keygen -t rsa -b 4096 -C '319723@wegmans.com' @args }
 function copilot_env { & powershell.exe (Join-Path $env:WEG_DIR 'sap\sap-disintegrator\tools\Set-McpToken.ps1') }
 function copilot_gh { & copilot.exe @args }
 function copilot { copilot_env; if ($LASTEXITCODE -eq 0) { copilot_gh @args } }
