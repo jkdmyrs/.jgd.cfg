@@ -69,9 +69,8 @@ function prompt {
     $escape = [char]27
     $location = (Get-Location).Path
     $line = "${escape}[32m$location${escape}[0m"
-    $gitDir = & git rev-parse --git-dir 2>$null
+    $branch = (& git branch --show-current 2>$null).Trim()
     if ($LASTEXITCODE -eq 0) {
-        $branch = (& git branch --show-current 2>$null).Trim()
         $commit = (& git log -1 --format='%h%x09%an%x09%s' 2>$null) -split "`t", 3
         $aheadBehind = & git rev-list --left-right --count '@{u}...HEAD' 2>$null
         $tracking = if ($LASTEXITCODE -eq 0) { "`n     $([char]0x2191)$($aheadBehind -split '\s+')[1]  $([char]0x2193)$($aheadBehind -split '\s+')[0]" } else { '' }

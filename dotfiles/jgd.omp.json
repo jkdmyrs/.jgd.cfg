@@ -42,6 +42,10 @@
             "fetch_status": false,
             "branch_icon": ""
           },
+          "cache": {
+            "duration": "2s",
+            "strategy": "folder"
+          },
           "template": "\n  {{ .Commit.Subject }}"
         },
         {
@@ -67,17 +71,11 @@
             "fetch_upstream_icon": false,
             "branch_icon": ""
           },
-          "template": " {{ .HEAD }}{{ if gt .Ahead 0 }} ↑{{ .Ahead }}{{ end }}{{ if gt .Behind 0 }} ↓{{ .Behind }}{{ end }} "
-        },
-        {
-          "type": "git",
-          "style": "plain",
-          "foreground": "p:dirty_bg",
-          "properties": {
-            "fetch_status": false,
-            "branch_icon": ""
+          "cache": {
+            "duration": "2s",
+            "strategy": "folder"
           },
-          "template": "{{ if or .Working.Changed .Staging.Changed }} *{{ end }}"
+          "template": " {{ .HEAD }}{{ if gt .Ahead 0 }} ↑{{ .Ahead }}{{ end }}{{ if gt .Behind 0 }} ↓{{ .Behind }}{{ end }}{{ if or .Working.Changed .Staging.Changed }} <p:dirty_bg>*</>{{ end }} "
         },
         {
           "type": "text",
