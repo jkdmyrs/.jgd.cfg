@@ -2,6 +2,7 @@ $ErrorActionPreference = 'Stop'
 
 $jgdRoot = if ($env:JGD_ROOT) { $env:JGD_ROOT } else { 'D:\.jgd.cfg' }
 $env:JGD_ROOT = $jgdRoot
+$env:WEZTERM_CONFIG_FILE = Join-Path $jgdRoot 'dotfiles\wezterm.lua'
 $env:Path = "$(Join-Path $jgdRoot 'bin\git-windows');$env:Path"
 $env:DENO_INSTALL = if ($env:DENO_INSTALL) { $env:DENO_INSTALL } else { Join-Path $HOME '.deno' }
 $env:Path = "$(Join-Path $env:DENO_INSTALL 'bin');$env:Path"
@@ -26,10 +27,23 @@ function Set-LocationIfExists([string] $Path) {
     Set-Location -LiteralPath $Path
 }
 function ll { Get-ChildItem -Force | Format-Table -AutoSize }
-function brc { . $PROFILE }
+function brc { . (Join-Path $env:JGD_ROOT 'dotfiles\Microsoft.PowerShell_profile.ps1') }
 function code { $codeCommand = Get-Command code -CommandType Application -ErrorAction Stop; & $codeCommand.Source . @args }
 function vs { & psrun (Get-ChildItem -Filter '*.sln' | Select-Object -First 1).FullName @args }
 function explore { Start-Process explorer.exe (Get-Location) }
+function main {
+    if (-not (Get-Command wezterm.exe -ErrorAction SilentlyContinue)) { throw 'WezTerm is required. Install it with: winget install --id wez.wezterm' }
+    & wezterm.exe mux-server --daemon
+    & wezterm.exe start --workspace main
+}
+function start_main { main }
+function ml { & wezterm.exe cli list }
+function ma([string] $Name) { & wezterm.exe start --workspace $Name }
+function md([string] $Name) {
+    & wezterm.exe cli list --format json | ConvertFrom-Json | Where-Object workspace -eq $Name | ForEach-Object {
+        & wezterm.exe cli kill-pane --pane-id $_.pane_id
+    }
+}
 function jgd { Set-LocationIfExists $env:JGD_ROOT }
 function prj { Set-LocationIfExists $env:PRJ_DIR }
 function usr { Set-LocationIfExists $env:USR_DIR }
@@ -79,18 +93,18 @@ if ((Get-Command oh-my-posh -ErrorAction SilentlyContinue) -and (Test-Path $ohMy
     # prompt-marker lines by keeping a live reference to its prompt function.
     $global:__ompPrompt = $Function:prompt
     function prompt {
-        $line = & $global:__ompPrompt
-        if ($line.Contains(' * ')) {
-            $status = & git -c color.status=always status --short 2>$null
-            if ($LASTEXITCODE -eq 0 -and $status) {
-                $statusBlock = ($status | ForEach-Object { "  $_" }) -join "`n"
-                $marker = "`n`$ "
-                $idx = $line.LastIndexOf($marker)
-                if ($idx -ge 0) {
-                    $line = $line.Substring(0, $idx) + "`n" + $statusBlock + $marker
-                }
+        $line = (& $global:__ompPrompt) -join "`n"
+        $status = & git -c color.status=always status --short 2>$null
+        if ($LASTEXITCODE -eq 0 -and $status) {
+            $statusBlock = ($status | ForEach-Object { "  $_" }) -join "`n"
+            $marker = "`n`$ "
+            $idx = $line.LastIndexOf($marker)
+            if ($idx -ge 0) {
+                $line = $line.Substring(0, $idx) + "`n" + $statusBlock + $marker
             }
         }
         $line
     }
 }
+
+

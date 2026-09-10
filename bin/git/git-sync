@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# git-update: pull the latest changes from the current branch and merge with main
+# git-sync: pull the latest changes from the current branch and merge with main
 
 dbranch=${1:-main}
 git a

@@ -18,11 +18,11 @@ if (Get-Command winget -ErrorAction SilentlyContinue) {
         oh-my-posh font install CascadiaCode
     }
 } else {
-    Write-Warning 'winget was not found; install Oh My Posh manually to enable the enhanced prompt.'
+    Write-Warning 'winget was not found; install Oh My Posh and WezTerm manually to enable the enhanced prompt and persistent Windows sessions.'
 }
 
 $marker = '# jgd.cfg PowerShell profile'
-$profileHook = "Invoke-Expression (Get-Content -Raw -LiteralPath '$profileSource')"
+$profileHook = ". '$profileSource'"
 foreach ($profileTarget in $profileTargets) {
     New-Item -ItemType Directory -Force -Path (Split-Path $profileTarget) | Out-Null
     if (-not (Test-Path $profileTarget)) { New-Item -ItemType File -Path $profileTarget | Out-Null }
@@ -39,7 +39,7 @@ foreach ($profileTarget in $profileTargets) {
 $userPath = [Environment]::GetEnvironmentVariable('Path', 'User')
 if (($userPath -split ';') -notcontains $gitBin) { [Environment]::SetEnvironmentVariable('Path', "$gitBin;$userPath", 'User') }
 $dispatcher = Join-Path $gitBin 'git-jgd.ps1'
-$gitCommands = @('cim', 'fresh', 'fresher', 'get', 'latest', 'new', 'p', 'pick', 'pr', 'release', 'up', 'update')
+$gitCommands = @('cim', 'fresh', 'fresher', 'get', 'latest', 'new', 'p', 'pick', 'pr', 'release', 'sync', 'up')
 $gitConfigSource = Join-Path $repoRoot 'dotfiles\.gitconfig'
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) { throw 'Git was not found on PATH.' }
 if (-not (Test-Path -LiteralPath $gitConfigSource)) { throw "Tracked Git config was not found: $gitConfigSource" }
@@ -50,6 +50,8 @@ foreach ($gitAlias in $gitAliases) {
     & git config --global "alias.$($aliasName -replace '^alias\.', '')" $aliasValue
     if ($LASTEXITCODE -ne 0) { throw "Could not configure Git alias: $aliasName" }
 }
+& git config --global --unset-all alias.update
+if ($LASTEXITCODE -notin 0, 5) { throw 'Could not remove legacy Git alias: update' }
 foreach ($gitCommand in $gitCommands) {
     $aliasValue = "!pwsh.exe -NoProfile -ExecutionPolicy Bypass -File '$dispatcher' $gitCommand"
     & git config --global "alias.$gitCommand" $aliasValue
