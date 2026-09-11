@@ -8,6 +8,10 @@ function Invoke-Git([string[]] $GitArguments) {
     & git @GitArguments
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
+# Runs git but doesn't halt the script on failure (e.g. branch not pushed yet)
+function Invoke-GitOptional([string[]] $GitArguments) {
+    & git @GitArguments
+}
 function Current-Branch { $branch = (& git branch --show-current).Trim(); if ($LASTEXITCODE -ne 0 -or -not $branch) { throw 'Not on a local branch.' }; $branch }
 function Open-GitHubUrl([string] $Path) {
     $remote = (& git remote get-url origin).Trim()
@@ -32,7 +36,7 @@ switch ($Command) {
     'get' { if (-not $Arguments.Count) { throw 'Usage: git get <branch>' }; Invoke-Git @('fetch', '--prune'); & git switch -t $Arguments[0] 2>$null; if ($LASTEXITCODE -ne 0) { Invoke-Git @('checkout', $Arguments[0]) } }
     'pick' { if (-not $Arguments.Count) { throw 'Usage: git pick <commit>' }; $branch = Current-Branch; Invoke-Git @('checkout', '-b', "pick$($Arguments[0])"); Invoke-Git @('cherry-pick', $Arguments[0]); & $PSCommandPath up $branch }
     'up' { $base = if ($Arguments.Count) { $Arguments[0] } else { 'main' }; & $PSCommandPath sync $base; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; & $PSCommandPath pr }
-    'sync' { $base = if ($Arguments.Count) { $Arguments[0] } else { 'main' }; $branch = Current-Branch; Invoke-Git @('add', '--all'); Invoke-Git @('stash'); Invoke-Git @('fetch', '--prune'); Invoke-Git @('pull', 'origin', $branch); Invoke-Git @('merge', "origin/$base") }
+    'sync' { $base = if ($Arguments.Count) { $Arguments[0] } else { 'main' }; $branch = Current-Branch; Invoke-Git @('add', '--all'); Invoke-Git @('stash'); Invoke-Git @('fetch', '--prune'); Invoke-GitOptional @('pull', 'origin', $branch); Invoke-Git @('merge', "origin/$base") }
     'release' { Invoke-Git @('fetch', '--prune'); $tag = @(git tag -l '[0-9][0-9][0-9][0-9].[0-9][0-9].[0-9][0-9]*' | Sort-Object -Descending | Select-Object -First 1); if (-not $tag) { throw 'No tags found.' }; $target = if ($Arguments.Count) { $Arguments[0] } else { 'main' }; Open-GitHubUrl "compare/$tag...$target" }
     default { throw "Unknown git-jgd command: $Command" }
 }

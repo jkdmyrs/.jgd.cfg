@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([switch] $Force)
+param([switch] $Force, [switch] $Quick)
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Get-Item -LiteralPath $PSScriptRoot).FullName
 $profileSource = Join-Path $repoRoot 'dotfiles\Microsoft.PowerShell_profile.ps1'
@@ -10,7 +10,9 @@ $profileTargets = @(
 ) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Sort-Object -Unique
 $gitBin = Join-Path $repoRoot 'bin\git-windows'
 
-if (Get-Command winget -ErrorAction SilentlyContinue) {
+if ($Quick) {
+    Write-Output 'Skipping winget installs (-Quick specified).'
+} elseif (Get-Command winget -ErrorAction SilentlyContinue) {
     if (-not (Get-Command oh-my-posh -ErrorAction SilentlyContinue)) {
         winget install --id JanDeDobbeleer.OhMyPosh --exact --source winget --accept-source-agreements --accept-package-agreements
     }
