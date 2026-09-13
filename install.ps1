@@ -19,6 +19,9 @@ if ($Quick) {
     if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
         oh-my-posh font install CascadiaCode
     }
+    if (-not (Get-Command wezterm.exe -ErrorAction SilentlyContinue)) {
+        winget install --id wez.wezterm --exact --source winget --accept-source-agreements --accept-package-agreements
+    }
 } else {
     Write-Warning 'winget was not found; install Oh My Posh and WezTerm manually to enable the enhanced prompt and persistent Windows sessions.'
 }

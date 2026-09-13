@@ -10,7 +10,7 @@ fresh box steps:
 7. run `setup` script
 8. run `source ~/.bashrc`
 
-Windows PowerShell uses the native WezTerm multiplexer for persistent terminals. Install it once with `winget install --id wez.wezterm`.
+Windows PowerShell uses the native WezTerm multiplexer for persistent terminals. `install.ps1` installs it automatically via winget; if winget is unavailable, install it manually with `winget install --id wez.wezterm`.
 
 - `main` or `start_main` attaches to (or creates) the `main` session
 - `ml` lists sessions

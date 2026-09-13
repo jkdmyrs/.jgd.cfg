@@ -78,6 +78,23 @@
           "template": " {{ .HEAD }}{{ if gt .Ahead 0 }} ↑{{ .Ahead }}{{ end }}{{ if gt .Behind 0 }} ↓{{ .Behind }}{{ end }}{{ if or .Working.Changed .Staging.Changed }} *{{ end }} "
         },
         {
+          "type": "git",
+          "style": "diamond",
+          "foreground": "#202124",
+          "background": "#f5a623",
+          "leading_diamond": "",
+          "trailing_diamond": "",
+          "properties": {
+            "fetch_status": false,
+            "branch_icon": ""
+          },
+          "cache": {
+            "duration": "2s",
+            "strategy": "folder"
+          },
+          "template": " {{ .ShortHash }} "
+        },
+        {
           "type": "text",
           "style": "plain",
           "template": "\n$ "

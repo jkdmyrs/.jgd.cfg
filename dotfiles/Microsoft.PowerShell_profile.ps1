@@ -29,16 +29,20 @@ function Set-LocationIfExists([string] $Path) {
 function ll { Get-ChildItem -Force | Format-Table -AutoSize }
 function brc { . (Join-Path $env:JGD_ROOT 'dotfiles\Microsoft.PowerShell_profile.ps1') }
 function code { $codeCommand = Get-Command code -CommandType Application -ErrorAction Stop; & $codeCommand.Source . @args }
-function vs { & psrun (Get-ChildItem -Filter '*.sln' | Select-Object -First 1).FullName @args }
+function vs {
+    $solution = (Get-ChildItem -Filter '*.sln' | Select-Object -First 1).FullName
+    if ($args.Count -gt 0) { Start-Process -FilePath $solution -ArgumentList $args } else { Start-Process -FilePath $solution }
+}
 function explore { Start-Process explorer.exe (Get-Location) }
 function main {
     if (-not (Get-Command wezterm.exe -ErrorAction SilentlyContinue)) { throw 'WezTerm is required. Install it with: winget install --id wez.wezterm' }
-    & wezterm.exe mux-server --daemon
-    & wezterm.exe start --workspace main
+    if (-not (Get-Command wezterm-mux-server.exe -ErrorAction SilentlyContinue)) { throw 'wezterm-mux-server.exe was not found alongside wezterm.exe.' }
+    & wezterm-mux-server.exe --daemonize
+    & wezterm.exe connect unix --workspace main
 }
 function start_main { main }
 function ml { & wezterm.exe cli list }
-function ma([string] $Name) { & wezterm.exe start --workspace $Name }
+function ma([string] $Name) { & wezterm.exe connect unix --workspace $Name }
 function md([string] $Name) {
     & wezterm.exe cli list --format json | ConvertFrom-Json | Where-Object workspace -eq $Name | ForEach-Object {
         & wezterm.exe cli kill-pane --pane-id $_.pane_id
