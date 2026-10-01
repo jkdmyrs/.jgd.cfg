@@ -64,8 +64,8 @@ function docs { Set-LocationIfExists $env:DOCS_DIR }
 function cost { Set-LocationIfExists $env:COST_DIR }
 function bricks { $env:PROJECT_ROOT = $env:BRICKS_DIR; Set-LocationIfExists $env:PROJECT_ROOT }
 function jsonlint([string] $Path) { Get-Content -Raw -LiteralPath $Path | ConvertFrom-Json | Out-Null }
-function token([ValidateSet('dis', 'disProd')] [string] $Name) {
-    $resources = @{ dis = 'c8304276-f3c4-40eb-acfb-d2330f4578a9'; disProd = 'b40ad62d-c014-4401-80aa-cab6adabb233' }
+function token([ValidateSet('dis', 'disProd', 'admin')] [string] $Name) {
+    $resources = @{ dis = 'c8304276-f3c4-40eb-acfb-d2330f4578a9'; disProd = 'b40ad62d-c014-4401-80aa-cab6adabb233'; admin = '3f290e60-7367-4359-ad20-3bf9f47cfd26' }
     & az account get-access-token --resource $resources[$Name] --tenant '1318d57f-757b-45b3-b1b0-9b3c3842774f'
 }
 function copilot_env { & powershell.exe (Join-Path $env:WEG_DIR 'sap\sap-disintegrator\tools\Set-McpToken.ps1') }

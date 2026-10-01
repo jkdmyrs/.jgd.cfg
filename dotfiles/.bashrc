@@ -181,6 +181,8 @@ token() {
     az account get-access-token --resource "c8304276-f3c4-40eb-acfb-d2330f4578a9" --tenant "1318d57f-757b-45b3-b1b0-9b3c3842774f"
   elif [[ $tokenName = "disProd" ]]; then
     az account get-access-token --resource "b40ad62d-c014-4401-80aa-cab6adabb233" --tenant "1318d57f-757b-45b3-b1b0-9b3c3842774f"
+  elif [[ $tokenName == "admin" ]]; then
+    az account get-access-token --resource "3f290e60-7367-4359-ad20-3bf9f47cfd26" --tenant "1318d57f-757b-45b3-b1b0-9b3c3842774f"
   fi
 }
 
