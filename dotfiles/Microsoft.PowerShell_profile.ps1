@@ -63,6 +63,28 @@ function cloud { Set-LocationIfExists $env:CLOUD_DIR }
 function docs { Set-LocationIfExists $env:DOCS_DIR }
 function cost { Set-LocationIfExists $env:COST_DIR }
 function bricks { $env:PROJECT_ROOT = $env:BRICKS_DIR; Set-LocationIfExists $env:PROJECT_ROOT }
+function touch([string[]] $Path) {
+    foreach ($filePath in $Path) {
+        if (Test-Path -LiteralPath $filePath -PathType Container) {
+            throw "Path is a directory: $filePath"
+        }
+
+        if (Test-Path -LiteralPath $filePath) {
+            $file = Get-Item -LiteralPath $filePath
+            $now = Get-Date
+            $file.LastAccessTime = $now
+            $file.LastWriteTime = $now
+        } else {
+            $file = [System.IO.File]::Open(
+                $filePath,
+                [System.IO.FileMode]::OpenOrCreate,
+                [System.IO.FileAccess]::ReadWrite,
+                [System.IO.FileShare]::ReadWrite
+            )
+            $file.Dispose()
+        }
+    }
+}
 function jsonlint([string] $Path) { Get-Content -Raw -LiteralPath $Path | ConvertFrom-Json | Out-Null }
 function token([ValidateSet('dis', 'disProd', 'admin')] [string] $Name) {
     $resources = @{ dis = 'c8304276-f3c4-40eb-acfb-d2330f4578a9'; disProd = 'b40ad62d-c014-4401-80aa-cab6adabb233'; admin = '3f290e60-7367-4359-ad20-3bf9f47cfd26' }
@@ -110,5 +132,3 @@ if ((Get-Command oh-my-posh -ErrorAction SilentlyContinue) -and (Test-Path $ohMy
         $line
     }
 }
-
-
