@@ -4,10 +4,9 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = (Get-Item -LiteralPath $PSScriptRoot).FullName
 $profileSource = Join-Path $repoRoot 'dotfiles\Microsoft.PowerShell_profile.ps1'
 $profileTargets = @(
-    $PROFILE,
     (Join-Path $HOME 'Documents\PowerShell\Microsoft.PowerShell_profile.ps1'),
     (Join-Path $HOME 'Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1')
-) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Sort-Object -Unique
+)
 $gitBin = Join-Path $repoRoot 'bin\git-windows'
 
 if ($Quick) {
@@ -35,7 +34,7 @@ foreach ($profileTarget in $profileTargets) {
     if ($null -eq $profileText) { $profileText = '' }
     if ($profileText -notmatch [regex]::Escape($marker)) {
         Add-Content -LiteralPath $profileTarget -Value "`n$marker`n$profileHook`n"
-    } elseif ($Force) {
+    } else {
         $profileText = [regex]::Replace($profileText, '(?m)^# jgd\.cfg PowerShell profile\r?\n[^\r\n]*(?:\r?\n|$)', "$marker`n$profileHook`n")
         Set-Content -LiteralPath $profileTarget -Value $profileText -NoNewline
     }
