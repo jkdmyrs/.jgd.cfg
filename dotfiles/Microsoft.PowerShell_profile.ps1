@@ -34,8 +34,7 @@ function vs {
     if ($args.Count -gt 0) { Start-Process -FilePath $solution -ArgumentList $args } else { Start-Process -FilePath $solution }
 }
 function explore {
-    $location = (Get-Location).Path
-    Start-Process -FilePath explorer.exe -ArgumentList @("`"$location`"")
+    Invoke-Item -LiteralPath (Get-Location).Path
 }
 function main {
     if (-not (Get-Command wezterm.exe -ErrorAction SilentlyContinue)) { throw 'WezTerm is required. Install it with: winget install --id wez.wezterm' }
