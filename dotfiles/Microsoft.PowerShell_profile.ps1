@@ -33,7 +33,10 @@ function vs {
     $solution = (Get-ChildItem -Filter '*.sln' | Select-Object -First 1).FullName
     if ($args.Count -gt 0) { Start-Process -FilePath $solution -ArgumentList $args } else { Start-Process -FilePath $solution }
 }
-function explore { Start-Process explorer.exe (Get-Location) }
+function explore {
+    $location = (Get-Location).Path
+    Start-Process -FilePath explorer.exe -ArgumentList @("`"$location`"")
+}
 function main {
     if (-not (Get-Command wezterm.exe -ErrorAction SilentlyContinue)) { throw 'WezTerm is required. Install it with: winget install --id wez.wezterm' }
     if (-not (Get-Command wezterm-mux-server.exe -ErrorAction SilentlyContinue)) { throw 'wezterm-mux-server.exe was not found alongside wezterm.exe.' }
@@ -65,18 +68,24 @@ function cost { Set-LocationIfExists $env:COST_DIR }
 function bricks { $env:PROJECT_ROOT = $env:BRICKS_DIR; Set-LocationIfExists $env:PROJECT_ROOT }
 function touch([string[]] $Path) {
     foreach ($filePath in $Path) {
-        if (Test-Path -LiteralPath $filePath -PathType Container) {
+        $resolvedPath = if ([System.IO.Path]::IsPathRooted($filePath)) {
+            $filePath
+        } else {
+            Join-Path (Get-Location).Path $filePath
+        }
+
+        if (Test-Path -LiteralPath $resolvedPath -PathType Container) {
             throw "Path is a directory: $filePath"
         }
 
-        if (Test-Path -LiteralPath $filePath) {
-            $file = Get-Item -LiteralPath $filePath
+        if (Test-Path -LiteralPath $resolvedPath) {
+            $file = Get-Item -LiteralPath $resolvedPath
             $now = Get-Date
             $file.LastAccessTime = $now
             $file.LastWriteTime = $now
         } else {
             $file = [System.IO.File]::Open(
-                $filePath,
+                $resolvedPath,
                 [System.IO.FileMode]::OpenOrCreate,
                 [System.IO.FileAccess]::ReadWrite,
                 [System.IO.FileShare]::ReadWrite
