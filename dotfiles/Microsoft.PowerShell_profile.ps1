@@ -107,7 +107,7 @@ function prompt {
     $escape = [char]27
     $location = (Get-Location).Path
     $line = "${escape}[32m$location${escape}[0m"
-    $branch = (& git branch --show-current 2>$null).Trim()
+    $branch = ((& git branch --show-current 2>$null) -join '').Trim()
     if ($LASTEXITCODE -eq 0) {
         $commit = (& git log -1 --format='%h%x09%an%x09%s' 2>$null) -split "`t", 3
         $aheadBehind = & git rev-list --left-right --count '@{u}...HEAD' 2>$null

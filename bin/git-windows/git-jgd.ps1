@@ -4,6 +4,7 @@ param(
     [Parameter(ValueFromRemainingArguments)] [string[]] $Arguments
 )
 $ErrorActionPreference = 'Stop'
+$Arguments = @($Arguments)
 function Invoke-Git([string[]] $GitArguments) {
     & git @GitArguments
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -12,10 +13,15 @@ function Invoke-Git([string[]] $GitArguments) {
 function Invoke-GitOptional([string[]] $GitArguments) {
     & git @GitArguments
 }
-function Current-Branch { $branch = (& git branch --show-current).Trim(); if ($LASTEXITCODE -ne 0 -or -not $branch) { throw 'Not on a local branch.' }; $branch }
+function Current-Branch {
+    $branch = (& git branch --show-current 2>$null) -join ''
+    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($branch)) { throw 'Not on a local branch.' }
+    $branch.Trim()
+}
 function Open-GitHubUrl([string] $Path) {
-    $remote = (& git remote get-url origin).Trim()
+    $remote = (& git remote get-url origin 2>$null) -join ''
     if ($LASTEXITCODE -ne 0) { throw 'Remote origin is not configured.' }
+    $remote = $remote.Trim()
     $remote = $remote -replace '^git@github\.com:', 'https://github.com/' -replace '^https://github\.com/', 'https://github.com/' -replace '\.git$', ''
     Start-Process "$remote/$Path"
 }
