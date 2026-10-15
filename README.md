@@ -19,4 +19,6 @@ Windows PowerShell uses the native WezTerm multiplexer for persistent terminals.
 
 Run `main` to open or reconnect to the persistent `main` workspace. Close the WezTerm window whenever you like; processes remain alive in the mux server. Open a new PowerShell window and run `main` to reconnect.
 
+PowerShell also exposes the event sample helpers `bce`, `cec`, and `cer` from `bin` with the same positional arguments as their Ubuntu counterparts.
+
 - [How to solve `Operation not permitted` on cloning repository](https://askubuntu.com/questions/1115564/wsl-ubuntu-distro-how-to-solve-operation-not-permitted-on-cloning-repository)

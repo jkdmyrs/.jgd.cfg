@@ -7,6 +7,7 @@ $profileTargets = @(
     (Join-Path $HOME 'Documents\PowerShell\Microsoft.PowerShell_profile.ps1'),
     (Join-Path $HOME 'Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1')
 )
+$bin = Join-Path $repoRoot 'bin'
 $gitBin = Join-Path $repoRoot 'bin\git-windows'
 
 if ($Quick) {
@@ -41,6 +42,7 @@ foreach ($profileTarget in $profileTargets) {
 }
 [Environment]::SetEnvironmentVariable('JGD_ROOT', $repoRoot, 'User')
 $userPath = [Environment]::GetEnvironmentVariable('Path', 'User')
+if (($userPath -split ';') -notcontains $bin) { [Environment]::SetEnvironmentVariable('Path', "$bin;$userPath", 'User'); $userPath = "$bin;$userPath" }
 if (($userPath -split ';') -notcontains $gitBin) { [Environment]::SetEnvironmentVariable('Path', "$gitBin;$userPath", 'User') }
 $dispatcher = Join-Path $gitBin 'git-jgd.ps1'
 $gitCommands = @('cim', 'fresh', 'fresher', 'get', 'latest', 'new', 'p', 'pick', 'pr', 'release', 'sync', 'up')
